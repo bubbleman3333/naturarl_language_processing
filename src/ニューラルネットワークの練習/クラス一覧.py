@@ -117,12 +117,21 @@ class SoftmaxWithLoss:
         loss = cross_entropy_error(self.y, self.t)
         return loss
 
-    def backward(self, dout=1):
+    def backward(self, d_out=1):
         batch_size = self.t.shape[0]
 
         dx = self.y.copy()
         dx[np.arange(batch_size), self.t] -= 1
-        dx *= dout
+        dx *= d_out
         dx = dx / batch_size
 
         return dx
+
+
+class SDG:
+    def __init__(self, lr=0.01):
+        self.lr = lr
+
+    def update(self, params, grads):
+        for i in range(len(params)):
+            params[i] -= self.lr * grads[i]

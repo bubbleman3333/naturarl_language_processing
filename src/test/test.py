@@ -1,10 +1,7 @@
 import numpy as np
 
-x = np.zeros(100)
+for i in range(1, 10):
+    s = np.log(i * 0.1)
+    print(s)
 
-t = [x, np.ones(100)]
-
-
-
-t[0][...] = np.random.random(13)
-print(t)
+print(np.log(0.9999))
