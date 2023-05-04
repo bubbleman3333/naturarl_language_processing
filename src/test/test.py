@@ -1,7 +1,10 @@
 import numpy as np
 
-d, n = 8, 7
-x = np.random.randn(1, d)
+x = np.zeros(100)
 
-p = np.repeat(x, n, axis=0)
-print(p)
+t = [x, np.ones(100)]
+
+
+
+t[0][...] = np.random.random(13)
+print(t)

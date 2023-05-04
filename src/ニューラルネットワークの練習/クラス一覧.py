@@ -30,30 +30,47 @@ def cross_entropy_error(y, t):
 class Affine:
     def __init__(self, w, b):
         self.params = [w, b]
+        self.grads = [np.zeros_like(w), np.zeros_like(b)]
+        self.x = None
 
     def forward(self, x):
         w, b = self.params
-        return np.dot(x, w) + b
 
-    def backward(self):
-        return
+        out = np.dot(x, w) + b
+        self.x = x
+        return out
+
+    def backward(self, d_out):
+        w, b = self.params
+        dx = np.dot(d_out, w.T)
+        dw = np.dot(self.x.T, d_out)
+        db = np.sum(d_out, axis=0)
+
+        self.grads[0][...] = dw
+        self.grads[1][...] = db
 
 
 class Sigmoid:
     def __init__(self):
-        self.params = []
+        self.params, self.grads = [], []
+        self.out = None
 
-    @staticmethod
-    def forward(x):
-        return 1 / (1 + np.exp(-x))
+    def forward(self, x):
+        out = 1 / (1 + np.exp(-x))
+        self.out = out
+        return out
+
+    def backward(self, d_out):
+        dx = d_out * (1 - self.out) * self.out
+        return dx
 
 
 class TwoLayerNet:
     def __init__(self, i_size, h_size, o_size):
         w1 = np.random.randn(i_size, h_size)
-        b1 = np.random.randn(h_size)
+        b1 = np.zeros(h_size)
         w2 = np.random.randn(h_size, o_size)
-        b2 = np.random.randn(o_size)
+        b2 = np.zeros(o_size)
 
         self.layers = [
             Affine(w1, b1),
@@ -61,12 +78,26 @@ class TwoLayerNet:
             Affine(w2, b2)
         ]
 
+        self.loss_layer = SoftmaxWithLoss()
+
         self.params = [layer.params for layer in self.layers]
+        self.grads = [layer.grads for layer in self.layers]
 
     def predict(self, x):
         for layer in self.layers:
             x = layer.forward(x)
         return x
+
+    def forward(self, x, t):
+        score = self.predict(x)
+        loss = self.loss_layer.forward(score, t)
+        return loss
+
+    def backward(self, d_out=1):
+        d_out = self.loss_layer.backward(d_out)
+        for layer in reversed(self.layers):
+            d_out = layer.backward(d_out)
+        return d_out
 
 
 class SoftmaxWithLoss:
