@@ -69,9 +69,9 @@ class Sigmoid:
 
 class TwoLayerNet:
     def __init__(self, i_size, h_size, o_size):
-        w1 = np.random.randn(i_size, h_size)
+        w1 = 0.01 * np.random.randn(i_size, h_size)
         b1 = np.zeros(h_size)
-        w2 = np.random.randn(h_size, o_size)
+        w2 = 0.01 * np.random.randn(h_size, o_size)
         b2 = np.zeros(o_size)
 
         self.layers = [
