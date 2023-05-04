@@ -49,6 +49,8 @@ class Affine:
         self.grads[0][...] = dw
         self.grads[1][...] = db
 
+        return dx
+
 
 class Sigmoid:
     def __init__(self):
@@ -80,8 +82,11 @@ class TwoLayerNet:
 
         self.loss_layer = SoftmaxWithLoss()
 
-        self.params = [layer.params for layer in self.layers]
-        self.grads = [layer.grads for layer in self.layers]
+        self.params = []
+        self.grads = []
+        for layer in self.layers:
+            self.params += layer.params
+            self.grads += layer.grads
 
     def predict(self, x):
         for layer in self.layers:
