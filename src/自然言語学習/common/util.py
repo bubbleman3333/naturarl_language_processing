@@ -36,3 +36,19 @@ def preprocess(t):
 
     corpus = np.array([word_to_id[w] for w in words])
     return word_to_id, id_to_word, corpus
+
+
+def most_similar(query, word_to_id, id_to_word, word_matrix, top=5):
+    if query not in word_to_id:
+        print(f"{query} is not found")
+        return
+    print(f"[query]{query}")
+    query_vec = word_matrix[word_to_id[query]]
+
+    vocab_size = len(id_to_word)
+    similarity = np.zeros(vocab_size)
+    for i in range(vocab_size):
+        similarity[i] = cos_similarity(word_matrix[i], query_vec)
+    for i in (-1 * similarity).argsort():
+        print(f"{id_to_word[i]}:{similarity[i]}")
+
