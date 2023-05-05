@@ -1,14 +1,11 @@
 import numpy as np
-from src.自然言語学習.まずは単語をIDに変換 import preprocess
-
-text = "You say goodbye and I say hello ."
-text_array = text.split(" ")
-word_to_id, id_to_word, corpus = preprocess(text)
-
-t = np.zeros((len(word_to_id), len(word_to_id)))
 
 
-# 共起行列
+def cos_similarity(x, y, eps=1e-8):
+    nx = x / (np.sqrt(np.sum(x ** 2)) + eps)
+    ny = y / (np.sqrt(np.sum(y ** 2)) + eps)
+    return np.dot(nx, ny)
+
 
 def create_co_matrix(corpus, vocab_size, window_size=1):
     corpus_size = len(corpus)
@@ -27,5 +24,15 @@ def create_co_matrix(corpus, vocab_size, window_size=1):
     return co_matrix
 
 
-t = create_co_matrix(corpus, len(word_to_id))
-print(t)
+def preprocess(t):
+    words = t.lower().split(" ")
+
+    word_to_id = {}
+    for word in words:
+        if word not in word_to_id:
+            new_id = len(word_to_id)
+            word_to_id[word] = new_id
+    id_to_word = {v: k for k, v in word_to_id.items()}
+
+    corpus = np.array([word_to_id[w] for w in words])
+    return word_to_id, id_to_word, corpus
