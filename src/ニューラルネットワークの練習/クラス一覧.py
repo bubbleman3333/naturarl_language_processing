@@ -140,3 +140,23 @@ class SDG:
     def update(self, params, grads):
         for i in range(len(params)):
             params[i] -= self.lr * grads[i]
+
+
+class MatMul:
+    def __init__(self, w):
+        self.params = [w]
+        self.grads = [np.zeros_like(w)]
+        self.x = None
+
+    def forward(self, x):
+        w = self.params
+        out = np.dot(x, w)
+        self.x = x
+        return out
+
+    def backward(self, d_out):
+        w, = self.params
+        dx = np.dot(d_out, w.T)
+        dw = np.dot(self.x.T, d_out)
+        self.grads[0][...] = dw
+        return dx
