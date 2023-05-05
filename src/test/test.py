@@ -1,5 +1,3 @@
-import numpy as np
+import math
 
-y,x = np.meshgrid(np.arange(1, 10, 1), np.arange(1, 10, 1))
-print(y)
-print(x)
+print(math.log2(20))
