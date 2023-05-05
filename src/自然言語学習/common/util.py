@@ -49,7 +49,7 @@ def most_similar(query, word_to_id, id_to_word, word_matrix, top=5):
     similarity = np.zeros(vocab_size)
     for i in range(vocab_size):
         similarity[i] = cos_similarity(word_matrix[i], query_vec)
-    for i in (-1 * similarity).argsort():
+    for i in (-1 * similarity).argsort()[:top]:
         print(f"{id_to_word[i]}:{similarity[i]}")
 
 
