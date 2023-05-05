@@ -149,7 +149,7 @@ class MatMul:
         self.x = None
 
     def forward(self, x):
-        w = self.params
+        w, = self.params
         out = np.dot(x, w)
         self.x = x
         return out
