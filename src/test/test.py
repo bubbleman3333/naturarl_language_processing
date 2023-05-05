@@ -1,7 +1,5 @@
 import numpy as np
 
-for i in range(1, 10):
-    s = np.log(i * 0.1)
-    print(s)
-
-print(np.log(0.9999))
+y,x = np.meshgrid(np.arange(1, 10, 1), np.arange(1, 10, 1))
+print(y)
+print(x)

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 max_epoch = 1000
 batch_size = 30
-hidden_size = 10
+hidden_size = 100
 learning_rate = 1.0
 
 x, t = spiral.load_data()
