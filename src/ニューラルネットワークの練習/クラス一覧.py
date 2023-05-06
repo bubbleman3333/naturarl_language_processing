@@ -190,3 +190,21 @@ class Adam:
             self.v[i] += (1 - self.beta2) * (grads[i] ** 2 - self.v[i])
 
             params[i] -= lr_t * self.m[i] / (np.sqrt(self.v[i]) + 1e-7)
+
+    class Embedding:
+        def __init__(self, w):
+            self.params = [w]
+            self.grads = [np.zeros_like(w)]
+            self.idx = None
+
+        def forward(self, idx):
+            w, = self.params
+            self.idx = idx
+            out = w[idx]
+            return out
+
+        def backward(self, d_out):
+            dw, = self.grads
+            dw[...] = 0
+
+            np.add.at(dw, self.idx, d_out)

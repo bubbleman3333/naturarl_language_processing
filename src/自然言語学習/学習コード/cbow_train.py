@@ -5,7 +5,7 @@ from src.自然言語学習.まずは単語をIDに変換 import preprocess
 from src.自然言語学習.common.util import create_contexts_target, convert_one_hot
 
 window_size = 1
-hidden_size = 5
+hidden_size = 10
 batch_size = 3
 max_epoch = 1000
 
