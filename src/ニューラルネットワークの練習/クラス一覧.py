@@ -344,3 +344,6 @@ class NegativeSamplingLoss:
         for i in range(self.sample_size):
             negative_target = negative_sample[:, i]
             score = self.embed_dot_layers[i + 1].forward(h, negative_target)
+            loss += self.loss_layers[i + 1].forward(score, negative_label)
+
+        return loss
