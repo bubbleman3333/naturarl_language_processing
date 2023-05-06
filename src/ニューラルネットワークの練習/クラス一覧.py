@@ -337,3 +337,10 @@ class NegativeSamplingLoss:
         # 正解レイヤ
         score = self.embed_dot_layers[0].forward(h, target)
         correct_label = np.ones(batch_size, dtype=np.int32)
+
+        loss = self.loss_layers[0].forward(score, correct_label)
+
+        negative_label = np.zeros(batch_size, dtype=np.int32)
+        for i in range(self.sample_size):
+            negative_target = negative_sample[:, i]
+            score = self.embed_dot_layers[i + 1].forward(h, negative_target)
