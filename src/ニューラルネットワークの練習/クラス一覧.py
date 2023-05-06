@@ -191,20 +191,38 @@ class Adam:
 
             params[i] -= lr_t * self.m[i] / (np.sqrt(self.v[i]) + 1e-7)
 
-    class Embedding:
-        def __init__(self, w):
-            self.params = [w]
-            self.grads = [np.zeros_like(w)]
-            self.idx = None
 
-        def forward(self, idx):
-            w, = self.params
-            self.idx = idx
-            out = w[idx]
-            return out
+class Embedding:
+    def __init__(self, w):
+        self.params = [w]
+        self.grads = [np.zeros_like(w)]
+        self.idx = None
 
-        def backward(self, d_out):
-            dw, = self.grads
-            dw[...] = 0
+    def forward(self, idx):
+        w, = self.params
+        self.idx = idx
+        out = w[idx]
+        return out
 
-            np.add.at(dw, self.idx, d_out)
+    def backward(self, d_out):
+        dw, = self.grads
+        dw[...] = 0
+
+        np.add.at(dw, self.idx, d_out)
+
+
+class EmbeddingDot:
+    def __init__(self, w):
+        self.embed = Embedding(w)
+        self.params = self.embed.params
+        self.grads = self.embed.grads
+        self.cache = None
+
+    def forward(self,h,idx):
+        target_w = self.embed.forward(idx)
+        out = np.sum(target_w*h,axis=1)
+
+        self.cache = (h,target_w)
+        return out
+
+
