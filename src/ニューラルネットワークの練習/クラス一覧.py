@@ -1,4 +1,5 @@
 import numpy as np
+import collections
 
 
 def softmax(x):
@@ -234,3 +235,90 @@ class EmbeddingDot:
         self.embed.backward(d_target_w)
         dh = d_out * target_w
         return dh
+
+
+class SigmoidWithLoss:
+
+    # 初期化メソッドの定義
+    def __init__(self):
+        self.params = []  # パラメータ
+        self.grads = []  # 勾配
+        self.loss = None  # 損失
+        self.y = None  # 正規化後の値
+        self.t = None  # 教師ラベル
+
+    # 順伝播メソッドの定義
+    def forward(self, x, t):
+        self.t = t  # 教師ラベル
+
+        # 確率に変換
+        self.y = 1 / (1 + np.exp(-x))  # シグモイド関数:式(1.5)
+
+        # 交差エントロピー誤差を計算
+        self.loss = cross_entropy_error(np.c_[1 - self.y, self.y], self.t)  # 1.3.1項
+
+        return self.loss
+
+    # 逆伝播メソッドの定義
+    def backward(self, dout=1):
+        # バッチサイズを取得
+        batch_size = self.t.shape[0]
+
+        # 勾配を計算
+        dx = (self.y - self.t) * dout / batch_size  # :式(A.4)
+
+        return dx
+
+
+# 負例のサンプラーの実装
+class UnigramSampler:
+
+    # 初期化メソッドの定義
+    def __init__(self, corpus, power, sample_size):
+        self.sample_size = sample_size  # サンプリングする単語数
+        self.vocab_size = None  # 語彙数
+        self.word_p = None  # 単語ごとのサンプリング確率
+
+        # 出現回数をカウント
+        counts = collections.Counter()  # 受け皿を初期化
+        for word_id in corpus:
+            counts[word_id] += 1
+
+        # 語彙数を保存
+        vocab_size = len(counts)
+        self.vocab_size = vocab_size
+
+        # 出現回数からサンプリング確率を計算
+        self.word_p = np.zeros(vocab_size)
+        for i in range(vocab_size):
+            self.word_p[i] = counts[i]  # カウントを移す
+        self.word_p = np.power(self.word_p, power)  # 値を調整:式(4.4)の分子
+        self.word_p /= np.sum(self.word_p)  # 確率に変換(割合を計算):式(4.4)
+
+    # サンプリングメソッドの定義
+    def get_negative_sample(self, target):
+        # バッチサイズ(ターゲット数)を取得
+        batch_size = target.shape[0]
+
+        # サンプリング
+        negative_sample = np.zeros((batch_size, self.sample_size), dtype=np.int32)  # 受け皿を初期化
+        for i in range(batch_size):
+            # 単語ごとのサンプリング確率を取得
+            p = self.word_p.copy()
+
+            # ターゲット自体の単語の確率を0にする
+            target_idx = target[i]  # ターゲットのインデックスを取得
+            p[target_idx] = 0  # ターゲットの単語の確率を0にする
+            p /= p.sum()  # 再正規化
+
+            # サンプリング
+            negative_sample[i, :] = np.random.choice(self.vocab_size, size=self.sample_size, replace=False, p=p)
+
+        return negative_sample
+
+
+class NegativeSamplingLoss:
+    def __init__(self, w, corpus, power=0.75, sample_size=5):
+        self.sample_size = sample_size
+        self.sampler = UnigramSampler(corpus, power, sample_size)
+        self.loss_layers = [SigmoidWithLoss() for _ in range(sample_size + 1)]
