@@ -220,6 +220,7 @@ class EmbeddingDot:
 
     def forward(self, h, idx):
         target_w = self.embed.forward(idx)
+        # 列毎に総和を求めている
         out = np.sum(target_w * h, axis=1)
 
         self.cache = (h, target_w)
