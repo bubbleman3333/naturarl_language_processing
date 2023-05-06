@@ -322,3 +322,18 @@ class NegativeSamplingLoss:
         self.sample_size = sample_size
         self.sampler = UnigramSampler(corpus, power, sample_size)
         self.loss_layers = [SigmoidWithLoss() for _ in range(sample_size + 1)]
+
+        self.embed_dot_layers = [EmbeddingDot(w) for _ in range(sample_size + 1)]
+
+        self.params, self.grads = [], []
+        for layer in self.embed_dot_layers:
+            self.params += layer.params
+            self.grads += layer.grads
+
+    def forward(self, h, target):
+        batch_size = target.shape[0]
+        negative_sample = self.sampler.get_negative_sample(target)
+
+        # 正解レイヤ
+        score = self.embed_dot_layers[0].forward(h, target)
+        correct_label = np.ones(batch_size, dtype=np.int32)
