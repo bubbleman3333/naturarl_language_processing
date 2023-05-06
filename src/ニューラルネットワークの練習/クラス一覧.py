@@ -218,11 +218,18 @@ class EmbeddingDot:
         self.grads = self.embed.grads
         self.cache = None
 
-    def forward(self,h,idx):
+    def forward(self, h, idx):
         target_w = self.embed.forward(idx)
-        out = np.sum(target_w*h,axis=1)
+        out = np.sum(target_w * h, axis=1)
 
-        self.cache = (h,target_w)
+        self.cache = (h, target_w)
         return out
 
+    def backward(self, d_out):
+        h, target_w = self.cache
+        d_out = d_out.reshape(d_out.shape[0], 1)
 
+        d_target_w = d_out * h
+        self.embed.backward(d_target_w)
+        dh = d_out * target_w
+        return dh
