@@ -1,6 +1,6 @@
 import numpy as np
 import collections
-import cupy
+import cupy as cp
 
 
 def softmax(x):
@@ -210,7 +210,9 @@ class Embedding:
         dw, = self.grads
         dw[...] = 0
 
-        np.add.at(dw, self.idx, d_out)
+        # cp.scatter_add(dw, self.idx, d_out)
+        for i in range(len(d_out)):
+            dw[self.idx[i]] += d_out[i]
 
 
 class EmbeddingDot:
@@ -256,7 +258,7 @@ class SigmoidWithLoss:
         self.y = 1 / (1 + np.exp(-x))  # シグモイド関数:式(1.5)
 
         # 交差エントロピー誤差を計算
-        self.loss = cross_entropy_error(np.c_[1 - self.y, self.y], self.t)  # 1.3.1項
+        self.loss = cross_entropy_error(cp.c_[1 - self.y, self.y], self.t)  # 1.3.1項
 
         return self.loss
 
@@ -264,7 +266,6 @@ class SigmoidWithLoss:
     def backward(self, dout=1):
         # バッチサイズを取得
         batch_size = self.t.shape[0]
-
         # 勾配を計算
         dx = (self.y - self.t) * dout / batch_size  # :式(A.4)
 
@@ -275,7 +276,7 @@ class SigmoidWithLoss:
 class UnigramSampler:
 
     # 初期化メソッドの定義
-    def __init__(self, corpus, power, sample_size):
+    def __init__(self, corpus, power, sample_size, gpu=False):
         self.sample_size = sample_size  # サンプリングする単語数
         self.vocab_size = None  # 語彙数
         self.word_p = None  # 単語ごとのサンプリング確率
@@ -295,6 +296,8 @@ class UnigramSampler:
             self.word_p[i] = counts[i]  # カウントを移す
         self.word_p = np.power(self.word_p, power)  # 値を調整:式(4.4)の分子
         self.word_p /= np.sum(self.word_p)  # 確率に変換(割合を計算):式(4.4)
+        if gpu:
+            self.word_p = to_gpu(self.word_p)
 
     # サンプリングメソッドの定義
     def get_negative_sample(self, target):
@@ -313,15 +316,15 @@ class UnigramSampler:
             p /= p.sum()  # 再正規化
 
             # サンプリング
-            negative_sample[i, :] = np.random.choice(self.vocab_size, size=self.sample_size, replace=False, p=p)
+            negative_sample[i, :] = np.random.choice(self.vocab_size, size=self.sample_size, replace=False, p=to_cpu(p))
 
-        return negative_sample
+        return to_gpu(negative_sample)
 
 
 class NegativeSamplingLoss:
     def __init__(self, w, corpus, power=0.75, sample_size=5):
         self.sample_size = sample_size
-        self.sampler = UnigramSampler(corpus, power, sample_size)
+        self.sampler = UnigramSampler(corpus, power, sample_size, gpu=True)
         self.loss_layers = [SigmoidWithLoss() for _ in range(sample_size + 1)]
 
         self.embed_dot_layers = [EmbeddingDot(w) for _ in range(sample_size + 1)]
@@ -337,7 +340,7 @@ class NegativeSamplingLoss:
 
         # 正解レイヤ
         score = self.embed_dot_layers[0].forward(h, target)
-        correct_label = np.ones(batch_size, dtype=np.int32)
+        correct_label = cp.ones(batch_size, dtype=np.int32)
 
         loss = self.loss_layers[0].forward(score, correct_label)
 
@@ -395,13 +398,12 @@ class CBOw:
 
 
 def to_gpu(x):
-    if type(x) == cupy.ndarray:
+    if type(x) == cp.ndarray:
         return x
-    return cupy.asarray(x)
+    return cp.asarray(x)
 
 
 def to_cpu(x):
-    import numpy
-    if type(x) == numpy.ndarray:
+    if type(x) == np.ndarray:
         return x
-    return np.asnumpy(x)
+    return cp.asnumpy(x)

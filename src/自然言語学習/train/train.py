@@ -16,7 +16,7 @@ contexts, target = create_contexts_target(corpus, window_size)
 if gpu:
     contexts, target = to_gpu(contexts), to_gpu(target)
 
-model = CBOw(vocab_size, hidden_size, window_size, corpus)
+model = CBOw(vocab_size, hidden_size, window_size, corpus, gpu=True)
 optimizer = Adam()
 trainer = Trainer(model, optimizer)
 
