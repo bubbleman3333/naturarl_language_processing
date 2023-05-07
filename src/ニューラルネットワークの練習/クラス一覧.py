@@ -385,3 +385,6 @@ class CBOw:
 
     def backward(self, d_out=1):
         d_out = self.ns_loss.backward(d_out)
+        d_out *= 1 / len(self.in_layers)
+        for layer in self.in_layers:
+            layer.backward(d_out)
