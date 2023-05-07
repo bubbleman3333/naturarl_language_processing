@@ -5,7 +5,18 @@ import numpy
 import time
 import matplotlib.pyplot as plt
 import numpy as np
+import cupy as cp
 from common.util import clip_grads
+import pickle
+
+
+def to_cpu(x):
+    if type(x) == np.ndarray:
+        return x
+    return cp.asnumpy(x)
+
+
+gpu = True
 
 
 class Trainer:
@@ -53,7 +64,14 @@ class Trainer:
                           % (self.current_epoch + 1, iters + 1, max_iters, elapsed_time, avg_loss))
                     self.loss_list.append(float(avg_loss))
                     total_loss, loss_count = 0, 0
+            word_vectors = model.word_vectors
 
+            if gpu:
+                word_vectors = to_cpu(word_vectors)
+            params = {"word_vectors": word_vectors}
+            pkl = "cbow_params.pkl"
+            with open(pkl, "wb") as f:
+                pickle.dump(params, f, -1)
             self.current_epoch += 1
 
     def plot(self, ylim=None):

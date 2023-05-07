@@ -266,6 +266,7 @@ class SigmoidWithLoss:
     def backward(self, dout=1):
         # バッチサイズを取得
         batch_size = self.t.shape[0]
+
         # 勾配を計算
         dx = (self.y - self.t) * dout / batch_size  # :式(A.4)
 
@@ -344,7 +345,7 @@ class NegativeSamplingLoss:
 
         loss = self.loss_layers[0].forward(score, correct_label)
 
-        negative_label = np.zeros(batch_size, dtype=np.int32)
+        negative_label = cp.zeros(batch_size, dtype=np.int32)
         for i in range(self.sample_size):
             negative_target = negative_sample[:, i]
             score = self.embed_dot_layers[i + 1].forward(h, negative_target)
@@ -379,6 +380,7 @@ class CBOw:
         self.params, self.grads = [], []
         for layer in layers:
             self.params += layer.params
+            self.grads += layer.grads
 
         self.word_vectors = []
 
