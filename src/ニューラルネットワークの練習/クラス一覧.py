@@ -1,6 +1,7 @@
 import numpy as np
 import collections
 import cupy
+from
 
 
 def softmax(x):
@@ -358,10 +359,13 @@ class NegativeSamplingLoss:
 
 
 class CBOw:
-    def __init__(self, vocab_size, hidden_size, window_size, corpus):
+    def __init__(self, vocab_size, hidden_size, window_size, corpus, gpu=False):
         v, h = vocab_size, hidden_size
         w_in = 0.01 * np.random.randn(v, h).astype("f")
         w_out = 0.01 * np.random.randn(v, h).astype("f")
+        if gpu:
+            w_in = to_gpu(w_in)
+            w_out = to_gpu(w_out)
 
         self.in_layers = []
         for i in range(2 * window_size):
