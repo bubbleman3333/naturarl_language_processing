@@ -354,3 +354,12 @@ class NegativeSamplingLoss:
             d_score = l0.backward(d_out)
             dh += l1.backward(d_score)
         return dh
+
+
+class CBOw:
+    def __init__(self, vocab_size, hidden_size, window_size, corpus):
+        v, h = vocab_size, hidden_size
+        w_in = 0.01 * np.random.randn(v, h).astype("f")
+        w_out = 0.01 * np.random.randn(v, h).astype("f")
+
+        self.in_layers =
