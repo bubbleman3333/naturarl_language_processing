@@ -1,5 +1,6 @@
 import numpy as np
 import collections
+import cupy
 
 
 def softmax(x):
@@ -388,3 +389,16 @@ class CBOw:
         d_out *= 1 / len(self.in_layers)
         for layer in self.in_layers:
             layer.backward(d_out)
+
+
+def to_gpu(x):
+    if type(x) == cupy.ndarray:
+        return x
+    return cupy.asarray(x)
+
+
+def to_cpu(x):
+    import numpy
+    if type(x) == numpy.ndarray:
+        return x
+    return np.asnumpy(x)
