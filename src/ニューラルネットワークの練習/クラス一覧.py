@@ -1,8 +1,6 @@
 import numpy as np
 import collections
 import cupy
-from
-
 
 def softmax(x):
     if x.ndim == 2:
