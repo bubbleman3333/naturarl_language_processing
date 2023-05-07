@@ -362,4 +362,26 @@ class CBOw:
         w_in = 0.01 * np.random.randn(v, h).astype("f")
         w_out = 0.01 * np.random.randn(v, h).astype("f")
 
-        self.in_layers =
+        self.in_layers = []
+        for i in range(2 * window_size):
+            layer = Embedding(w_in)
+            self.in_layers.append(layer)
+        self.ns_loss = NegativeSamplingLoss(w_out, corpus, power=0.75, sample_size=5)
+
+        layers = self.in_layers + [self.ns_loss]
+        self.params, self.grads = [], []
+        for layer in layers:
+            self.params += layer.params
+
+        self.word_vectors = []
+
+    def forward(self, contexts, target):
+        h = 0
+        for i, layer in enumerate(self.in_layers):
+            h += layer.forward(contexts[:, i])
+        h = 1 / len(self.in_layers)
+        loss = self.ns_loss.forward(h, target)
+        return loss
+
+    def backward(self, d_out=1):
+        d_out = self.ns_loss.backward(d_out)
