@@ -1,5 +1,3 @@
-import cupy as np
-
 import pickle
 from src.ニューラルネットワークの練習.クラス一覧 import Adam, CBOw, to_gpu, to_cpu
 from src.dataset import ptb

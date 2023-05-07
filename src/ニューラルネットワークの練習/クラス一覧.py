@@ -2,6 +2,7 @@ import numpy as np
 import collections
 import cupy
 
+
 def softmax(x):
     if x.ndim == 2:
         x = x - x.max(axis=1, keepdims=True)
