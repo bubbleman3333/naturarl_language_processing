@@ -347,3 +347,10 @@ class NegativeSamplingLoss:
             loss += self.loss_layers[i + 1].forward(score, negative_label)
 
         return loss
+
+    def backward(self, d_out=1):
+        dh = 0
+        for l0, l1 in zip(self.loss_layers, self.embed_dot_layers):
+            d_score = l0.backward(d_out)
+            dh += l1.backward(d_score)
+        return dh

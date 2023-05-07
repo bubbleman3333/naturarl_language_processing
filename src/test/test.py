@@ -7,4 +7,4 @@ dw = np.zeros(6)
 
 x = np.add.at(dw, idx, x)
 
-print(dw)
+
