@@ -382,7 +382,7 @@ class CBOw:
             self.params += layer.params
             self.grads += layer.grads
 
-        self.word_vectors = []
+        self.word_vectors = w_in
 
     def forward(self, contexts, target):
         h = 0

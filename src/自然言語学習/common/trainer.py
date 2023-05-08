@@ -28,13 +28,14 @@ class Trainer:
         self.current_epoch = 0
 
     def fit(self, x, t, max_epoch=10, batch_size=32, max_grad=None, eval_interval=20):
+        print("こんにちは")
         data_size = len(x)
         max_iters = data_size // batch_size
         self.eval_interval = eval_interval
         model, optimizer = self.model, self.optimizer
         total_loss = 0
         loss_count = 0
-
+        print("こんばんは")
         start_time = time.time()
         for epoch in range(max_epoch):
             # シャッフル
@@ -64,14 +65,16 @@ class Trainer:
                           % (self.current_epoch + 1, iters + 1, max_iters, elapsed_time, avg_loss))
                     self.loss_list.append(float(avg_loss))
                     total_loss, loss_count = 0, 0
-            word_vectors = model.word_vectors
+                if iters % 20 == 1:
+                    print("保存した")
+                    word_vectors = model.word_vectors
 
-            if gpu:
-                word_vectors = to_cpu(word_vectors)
-            params = {"word_vectors": word_vectors}
-            pkl = "cbow_params.pkl"
-            with open(pkl, "wb") as f:
-                pickle.dump(params, f, -1)
+                    if gpu:
+                        word_vectors = to_cpu(word_vectors)
+                    params = {"word_vectors": word_vectors}
+                    pkl = "cbow_params.pkl"
+                    with open(pkl, "wb") as f:
+                        pickle.dump(params, f, -1)
             self.current_epoch += 1
 
     def plot(self, ylim=None):
@@ -118,10 +121,10 @@ class RnnlmTrainer:
         model, optimizer = self.model, self.optimizer
         total_loss = 0
         loss_count = 0
-
         start_time = time.time()
         for epoch in range(max_epoch):
             for iters in range(max_iters):
+                print(iters)
                 batch_x, batch_t = self.get_batch(xs, ts, batch_size, time_size)
 
                 # 勾配を求め、パラメータを更新
@@ -142,6 +145,14 @@ class RnnlmTrainer:
                           % (self.current_epoch + 1, iters + 1, max_iters, elapsed_time, ppl))
                     self.ppl_list.append(float(ppl))
                     total_loss, loss_count = 0, 0
+            word_vectors = model.word_vectors
+
+            if gpu:
+                word_vectors = to_cpu(word_vectors)
+            params = {"word_vectors": word_vectors}
+            pkl = "cbow_params.pkl"
+            with open(pkl, "wb") as f:
+                pickle.dump(params, f, -1)
 
             self.current_epoch += 1
 
