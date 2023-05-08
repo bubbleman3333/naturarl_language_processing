@@ -1,3 +1,2 @@
-スキップグラムの更新式
-$L=-(\log P(\mathrm{w}_{t-1}\ \mid \mathrm{w}_t) + \log P(\mathrm{w}_{t\+1}\ \mid \mathrm{w}_t))$
-
+スキップグラムの損失関数
+$L = -(\log P(w_{t-1}\mid w_t) + \log P(w_{t+1}\mid w_t))$
