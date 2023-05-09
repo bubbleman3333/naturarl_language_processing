@@ -6,7 +6,7 @@
 <br>
 
 ## tanh関数の式
-## $f(x) = \frac{e^x - e^-x}{e^x + e^-x}  $ 
+## $f(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}  $ 
 
 ![tanhグラフ](https://lh3.googleusercontent.com/0MV3pxIbo1fZtB7S6AcyOmT89_KDKi0lM8JjJmvGJZbfk_scZFVIsWEr7yiFh1SlXMpadGjFQseft4jPnZfdEOC7xJiV_5T7upwAEJ8L)
 ### 値域は -1 ～ 1
