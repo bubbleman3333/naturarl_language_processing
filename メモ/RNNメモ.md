@@ -32,7 +32,9 @@ RNNの出力 $h_t$ は<strong>隠れ状態・隠れベクトル</strong>と呼�
 - 順伝播時　→　そのまま流す
 - 逆伝播時  →  ある程度の長さで断ち切る
 
-##　次元数確認式
+
+
+## 次元数確認式
 $N \times H・H \times H =  N \times D・D \times H$
 
 N:バッチサイズ 
