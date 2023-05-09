@@ -19,3 +19,20 @@ class RNN:
 
         self.cache = (x, h_prev, h_next)
         return h_next
+
+    def backward(self, dh_next):
+        wx, wh, b = self.params
+        x, h_prev, h_next = self.cache
+        # tan_hの微分
+        dt = dh_next * (1 - h_next ** 2)
+        db = np.sum(dt, axis=0)
+        dwh = np.dot(h_prev.T, dt)
+        dh_prev = np.dot(dt, wh.T)
+        dwx = np.dot(x.T, dt)
+        dx = np.dot(dt, wx.T)
+
+        self.grads[0][...] = dwx
+        self.grads[1][...] = dwh
+        self.grads[2][...] = db
+
+        return dx, dh_prev
