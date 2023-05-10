@@ -36,3 +36,19 @@ class RNN:
         self.grads[2][...] = db
 
         return dx, dh_prev
+
+
+class TimeRNN:
+    def __init__(self, wx, wh, b, stateful=False):
+        self.params = [wx, wh, b]
+        self.grads = [np.zeros_like(wx), np.zeros_like(wh), np.zeros_like(b)]
+
+        self.layers = None
+        self.h, self.dh = None, None
+        self.stateful = stateful
+
+    def set_state(self, h):
+        self.h = h
+
+    def reset_state(self):
+        self.h = None
