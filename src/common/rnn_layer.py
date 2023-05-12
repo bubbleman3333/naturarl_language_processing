@@ -52,3 +52,21 @@ class TimeRNN:
 
     def reset_state(self):
         self.h = None
+
+    def forward(self, xs):
+        wx, wh, b = self.params
+        n, t, d = xs.shape
+        d, h = wx.shape
+        self.layers = []
+        hs = np.empty((n, t, h), dtype="f")
+
+        if not self.stateful or self.h is None:
+            self.h = np.zeros((n, h), dtype="f")
+
+        for t_idx in range(t):
+            layer = RNN(*self.params)
+            self.h = layer.forward(xs[:, t, :], self.h)
+            hs[:, t, :] = self.h
+            self.layers.append(layer)
+
+        return hs

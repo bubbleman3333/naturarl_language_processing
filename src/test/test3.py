@@ -1,35 +1,25 @@
-import matplotlib.pyplot as plt
-from matplotlib.animation import ArtistAnimation
 import numpy as np
 
+k = int(input())
+base_strings = input().split(" ")
+holes = np.array([int(input()) for k in range(int(input()))]) - 1
 
-n = 100
-num_k = 3
-x = np.random.random((2, n))
-mapp = x.reshape((n, 2))
-base = mapp[np.random.choice(n, num_k, replace=False)]
-labels = np.random.randint(0, num_k, n)
-count = 0
-markers = ["*", "+", "o"]
-colors = ["r", "g", "b"]
-frames = []
-fig, ax = plt.subplots()
+answer = []
+base = np.array([-1] * k)
+
+ll = np.arange(k)
 while True:
-    count += 1
-    t = []
-    for i in range(num_k):
-        p = mapp[labels == i]
-        t.append(ax.scatter(p[:, 0], p[:, 1], marker=markers[i], color=colors[i]))
-    frames.append(t)
-
-    for i in range(num_k):
-        clusters = mapp[labels == i]
-        base[i] = clusters.mean(axis=0)
-    dist = ((mapp[:, np.newaxis, :] - base[np.newaxis, :, :]) ** 2).sum(axis=2)
-    labels_prev = labels.copy()
-    labels = np.argmin(dist, axis=1)
-    if (labels_prev == labels).all():
+    temp = ll[holes]
+    answer += temp[temp != -1].tolist()
+    ll[holes] = -1
+    base_copy = base.copy()
+    temp = ll[ll != -1]
+    if temp.size == 0:
         break
+    base_copy[:temp.size] = temp
+    ll = base_copy
 
-ani = ArtistAnimation(fig, frames, interval=300)
-plt.show()
+output = [""] * k
+for idx, i in enumerate(answer):
+    output[i] = base_strings[idx]
+print("".join(output))
